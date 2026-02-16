@@ -81,9 +81,11 @@ pnpm --filter web dev &
 # Open, snapshot, screenshot, close
 npx agent-browser open http://localhost:5173
 npx agent-browser snapshot -i
-npx agent-browser screenshot --full output.png
+npx agent-browser screenshot --full apps/web/screenshots/welcome.png
 npx agent-browser close
 ```
+
+Screenshots should always be saved to `apps/web/screenshots/`. This is the convention used by `browser-testing/take-screenshot.sh`.
 
 ### Key files
 
@@ -92,4 +94,5 @@ npx agent-browser close
 | `apps/web/src/Welcome.tsx` | Home page component |
 | `apps/web/src/App.tsx` | Root React component (renders Welcome) |
 | `apps/web/src/main.tsx` | React entry point |
+| `apps/web/screenshots/` | Screenshot output directory |
 | `browser-testing/take-screenshot.sh` | Screenshot helper script |
