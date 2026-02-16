@@ -22,6 +22,13 @@ agbr-test/
 ├── .agents/                    # Agent skills
 │   └── skills/
 │       └── agent-browser/      # Installed agent-browser skill
+├── .devcontainer/              # DevContainer configuration
+│   └── devcontainer.json       # VS Code DevContainer settings
+├── .vscode/                    # VS Code configuration
+│   ├── extensions.json         # Recommended extensions
+│   ├── launch.json             # Debug configurations
+│   ├── settings.json           # Workspace settings
+│   └── tasks.json              # Build and dev tasks
 ├── apps/
 │   └── web/                    # Main React application
 │       ├── src/
@@ -65,6 +72,41 @@ pnpm install
 cd apps/web
 npx agent-browser install
 ```
+
+### Development with VS Code and DevContainer
+
+This project includes full VS Code and DevContainer support for a seamless development experience:
+
+#### DevContainer Setup
+The project includes a complete DevContainer configuration (`.devcontainer/devcontainer.json`) with:
+- Node.js 22 pre-installed
+- pnpm package manager
+- All recommended VS Code extensions
+- Auto-forwarding of port 5173 (Vite dev server)
+- Automatic dependency installation on container creation
+
+To use the DevContainer:
+1. Install [Docker](https://www.docker.com/products/docker-desktop) and the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) for VS Code
+2. Open the project in VS Code
+3. Click "Reopen in Container" when prompted, or use Command Palette → "Dev Containers: Reopen in Container"
+
+#### VS Code Debugging
+The project includes launch configurations for debugging the React application:
+- **Launch Chrome against localhost** - Starts dev server and opens in Chrome with debugger attached
+- **Launch Edge against localhost** - Starts dev server and opens in Edge with debugger attached
+- **Attach to Node** - Attach to a running Node.js process
+
+To debug:
+1. Open the Run and Debug panel (Ctrl+Shift+D / Cmd+Shift+D)
+2. Select a launch configuration from the dropdown
+3. Press F5 or click the green play button
+4. Set breakpoints in your TypeScript/React code - they'll work in the browser!
+
+The debugger will automatically:
+- Start the Vite dev server
+- Wait for the server to be ready
+- Open your browser with debugging enabled
+- Map source files correctly for breakpoints
 
 ## 🚀 Development
 
@@ -164,6 +206,13 @@ The skill provides:
 - Video recording workflows
 
 ## 🎨 Features
+
+### VS Code Integration
+- **DevContainer Support** - Full development environment in a container with Node.js 22 and pnpm
+- **Debugging Configuration** - Launch configurations for Chrome and Edge with source map support
+- **Task Automation** - Pre-configured tasks for building, linting, and starting dev server
+- **Extension Recommendations** - Curated list of helpful VS Code extensions
+- **Workspace Settings** - Optimized editor settings for React, TypeScript, and Tailwind CSS
 
 ### Welcome Page
 The welcome page showcases various shadcn/ui components:
