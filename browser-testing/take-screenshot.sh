@@ -10,9 +10,20 @@ echo "Starting Vite dev server..."
 pnpm dev &
 DEV_PID=$!
 
-# Wait for the server to start
+# Wait for the server to be ready with health check
 echo "Waiting for dev server to be ready..."
-sleep 10
+timeout=30
+elapsed=0
+while ! curl -s http://localhost:5173 > /dev/null 2>&1; do
+  sleep 1
+  elapsed=$((elapsed + 1))
+  if [ $elapsed -ge $timeout ]; then
+    echo "Timeout waiting for dev server"
+    kill $DEV_PID 2>/dev/null || true
+    exit 1
+  fi
+done
+echo "Dev server is ready!"
 
 # Take a screenshot
 echo "Taking screenshot..."
