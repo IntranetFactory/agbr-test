@@ -69,8 +69,19 @@ bash workplace/setup.sh
 
 This script will automatically:
 - Install agent-browser globally
-- Install agent-browser dependencies
+- Install agent-browser dependencies (Playwright)
 - Install project dependencies with pnpm
+- Configure Git hooks via Husky
+
+**After this one-time setup, Git hooks will automatically maintain your workspace:**
+- `post-checkout`: Runs setup when switching branches (if needed)
+- `post-merge`: Runs setup when pulling/merging changes (if needed)
+- `pre-commit`: Runs tests before allowing commits
+
+3. Verify your setup (optional):
+```bash
+bash workplace/check-setup.sh
+```
 
 **Note:** If you're using VS Code DevContainer (`.devcontainer/devcontainer.json`) or Claude Code Sandbox (`.claude/hooks.json`), the setup script will run automatically when the container is created or when a new session starts.
 
