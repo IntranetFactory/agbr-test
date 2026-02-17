@@ -35,7 +35,7 @@
       }
     }
   },
-  "postCreateCommand": "bash setup-workplace.sh",
+  "postCreateCommand": "bash workplace/setup.sh",
   "forwardPorts": [5173],
   "portsAttributes": {
     "5173": {

@@ -1,5 +1,5 @@
 #!/bin/bash
 # Post-checkout hook
-# Runs setup-workplace.sh after checkout
+# Runs workplace/setup.sh after checkout
 
-./setup-workplace.sh
+./workplace/setup.sh

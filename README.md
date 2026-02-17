@@ -64,7 +64,7 @@ cd agbr-test
 
 2. Run the setup script:
 ```bash
-bash setup-workplace.sh
+bash workplace/setup.sh
 ```
 
 This script will automatically:
