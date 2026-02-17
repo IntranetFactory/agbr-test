@@ -62,4 +62,3 @@ echo "Workplace updated to version $VERSION"
 
 # Send success message
 "$SCRIPT_DIR/message.sh" "workplace setup finished" 2>/dev/null || true
-
