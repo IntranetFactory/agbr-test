@@ -37,7 +37,7 @@
     --color-popover: oklch(15.58% 0.0217 285.79);
     --color-popover-foreground: oklch(97.57% 0.0088 247.86);
     --color-primary: oklch(65.69% 0.2437 262.09);
-    --color-primary-foreground: oklch(24.26% 0.0355 285.88);
+    --color-primary-foreground: oklch(100% 0 0);
     --color-secondary: oklch(28.45% 0.0291 264.54);
     --color-secondary-foreground: oklch(97.57% 0.0088 247.86);
     --color-muted: oklch(28.45% 0.0291 264.54);
