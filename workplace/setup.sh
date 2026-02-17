@@ -3,6 +3,23 @@
 # Setup workplace script
 # This script configures the environment and dependencies after checkout
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Error handler function
+error_handler() {
+    local exit_code=$?
+    local line_number=$1
+    local error_message="workplace setup failed at line $line_number with exit code $exit_code"
+    echo "$error_message"
+    "$SCRIPT_DIR/message.sh" "$error_message" 2>/dev/null || true
+    exit $exit_code
+}
+
+# Set up error trap
+trap 'error_handler ${LINENO}' ERR
+set -e
+
 # Current script version
 VERSION="001"
 
@@ -22,6 +39,7 @@ echo "Script version: $VERSION"
 # Stop if workplace version is >= script version
 if [ "$CURRENT_VERSION" -ge "$VERSION" ]; then
     echo "Workplace is up to date (version $CURRENT_VERSION). Skipping setup."
+    "$SCRIPT_DIR/message.sh" "workplace setup finished" 2>/dev/null || true
     exit 0
 fi
 
@@ -29,24 +47,18 @@ echo "Updating workplace from $CURRENT_VERSION to $VERSION..."
 
 # Install global dependencies
 echo "Installing agent-browser globally..."
-if ! npm install -g agent-browser; then
-    echo "Error: Failed to install agent-browser globally"
-    exit 1
-fi
+npm install -g agent-browser
 
 echo "Installing agent-browser dependencies..."
 # agent-browser install --with-deps
-if ! npx --yes playwright install --with-deps chromium; then
-    echo "Error: Failed to install agent-browser dependencies"
-    exit 1
-fi
+npx --yes playwright install --with-deps chromium
 
 echo "Installing project dependencies with pnpm..."
-if ! pnpm install --frozen-lockfile; then
-    echo "Error: Failed to install project dependencies"
-    exit 1
-fi
+pnpm install --frozen-lockfile
 
 # Save the new version
 echo "$VERSION" > "$VERSION_FILE"
 echo "Workplace updated to version $VERSION"
+
+# Send success message
+"$SCRIPT_DIR/message.sh" "workplace setup finished" 2>/dev/null || true

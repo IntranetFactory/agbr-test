@@ -3,7 +3,7 @@
     "commands": [
       {
         "command": "bash",
-        "args": ["setup-workplace.sh"],
+        "args": ["workplace/setup.sh"],
         "description": "Run workplace setup script to configure environment and install dependencies"
       }
     ]
