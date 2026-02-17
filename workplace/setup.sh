@@ -51,7 +51,7 @@ npm install -g agent-browser
 
 echo "Installing agent-browser dependencies..."
 # agent-browser install --with-deps
-npx --yes playwright install --with-deps chromium
+npx --yes -p agent-browser playwright install --with-deps chromium
 
 echo "Installing project dependencies with pnpm..."
 pnpm install --frozen-lockfile
