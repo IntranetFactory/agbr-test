@@ -1,2 +1,8 @@
 packages:
-  - 'apps/*'
+  - apps/*
+
+ignoredBuiltDependencies:
+  - agent-browser
+  - edgedriver
+  - esbuild
+  - geckodriver
