@@ -21,7 +21,7 @@ trap 'error_handler ${LINENO}' ERR
 set -e
 
 # Current script version
-VERSION="001"
+VERSION="002"
 
 # Path to the version file
 VERSION_FILE=".workplace-version"
@@ -49,11 +49,21 @@ echo "Updating workplace from $CURRENT_VERSION to $VERSION..."
 echo "Installing agent-browser globally..."
 npm install -g agent-browser
 
-echo "Installing Playwright browsers..."
-npx --yes playwright install --with-deps chromium
-
 echo "Installing project dependencies with pnpm..."
 pnpm install --frozen-lockfile
+
+# Install Playwright browsers using the locally installed playwright-core version.
+# This ensures the correct Chromium revision matching agent-browser's playwright-core
+# dependency, rather than whatever global playwright version happens to be installed.
+echo "Installing Playwright browsers for agent-browser..."
+PLAYWRIGHT_CLI=$(find node_modules/.pnpm -maxdepth 4 -name "cli.js" -path "*/playwright-core/cli.js" 2>/dev/null | head -1)
+if [ -n "$PLAYWRIGHT_CLI" ]; then
+    echo "Using playwright-core CLI at: $PLAYWRIGHT_CLI"
+    node "$PLAYWRIGHT_CLI" install --with-deps chromium
+else
+    echo "playwright-core not found in local node_modules, falling back to global playwright..."
+    npx --yes playwright install --with-deps chromium
+fi
 
 # Save the new version
 echo "$VERSION" > "$VERSION_FILE"
