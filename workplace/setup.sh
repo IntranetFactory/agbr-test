@@ -20,7 +20,7 @@ trap 'error_handler ${LINENO}' ERR
 set -e
 
 # Current script version
-VERSION="004"
+VERSION="006"
 
 # Path to the version file
 VERSION_FILE=".workplace-version"
@@ -63,7 +63,7 @@ fi
 # Determine the revision required by this playwright-core
 REQUIRED_REVISION=""
 if [ -n "$PLAYWRIGHT_CLI" ]; then
-    BROWSERS_JSON="$(dirname "$PLAYWRIGHT_CLI")/../../browsers.json"
+    BROWSERS_JSON="$(dirname "$PLAYWRIGHT_CLI")/browsers.json"
     if [ -f "$BROWSERS_JSON" ] && command -v python3 &>/dev/null; then
         REQUIRED_REVISION=$(python3 - "$BROWSERS_JSON" <<'PYEOF'
 import json, sys
@@ -88,14 +88,44 @@ if [ -n "$REQUIRED_REVISION" ]; then
 fi
 
 # Fresh install with --with-deps to also pull in OS shared libraries
+BROWSER_INSTALLED=false
 if [ -n "$PLAYWRIGHT_CLI" ]; then
     if node "$PLAYWRIGHT_CLI" install --with-deps chromium-headless-shell; then
         "$SCRIPT_DIR/message.sh" "Playwright browser installed successfully" 2>/dev/null || true
+        BROWSER_INSTALLED=true
     else
-        "$SCRIPT_DIR/message.sh" "WARNING: Playwright browser install failed. agent-browser may not work." 2>/dev/null || true
+        "$SCRIPT_DIR/message.sh" "WARNING: Playwright browser download failed (CDN blocked). Attempting fallback to pre-installed browser..." 2>/dev/null || true
     fi
 else
-    "$SCRIPT_DIR/message.sh" "WARNING: playwright-core CLI not found. agent-browser may not work." 2>/dev/null || true
+    "$SCRIPT_DIR/message.sh" "WARNING: playwright-core CLI not found. Attempting fallback to pre-installed browser..." 2>/dev/null || true
+fi
+
+# Fallback: if download failed and we have a required revision, map any existing
+# chromium-headless-shell installation to the expected path/binary names.
+if [ "$BROWSER_INSTALLED" = "false" ] && [ -n "$REQUIRED_REVISION" ]; then
+    REQUIRED_DIR="$BROWSERS_PATH/chromium_headless_shell-$REQUIRED_REVISION"
+    REQUIRED_BIN="$REQUIRED_DIR/chrome-headless-shell-linux64/chrome-headless-shell"
+
+    # Find the newest available pre-installed headless shell binary
+    EXISTING_BIN=$(find "$BROWSERS_PATH" -maxdepth 4 \
+        \( -name "chrome-headless-shell" -o -name "headless_shell" \) \
+        -type f 2>/dev/null | sort -V | tail -1)
+
+    if [ -n "$EXISTING_BIN" ]; then
+        "$SCRIPT_DIR/message.sh" "Using existing browser at $EXISTING_BIN for revision $REQUIRED_REVISION" 2>/dev/null || true
+        mkdir -p "$(dirname "$REQUIRED_BIN")"
+        ln -sf "$EXISTING_BIN" "$REQUIRED_BIN"
+        # Copy DEPENDENCIES_VALIDATED marker from the source revision if present
+        SRC_DIR="$(dirname "$(dirname "$EXISTING_BIN")")"
+        for marker in DEPENDENCIES_VALIDATED INSTALLATION_COMPLETE; do
+            if [ -f "$SRC_DIR/$marker" ] && [ ! -f "$REQUIRED_DIR/$marker" ]; then
+                cp "$SRC_DIR/$marker" "$REQUIRED_DIR/$marker" 2>/dev/null || true
+            fi
+        done
+        "$SCRIPT_DIR/message.sh" "Fallback browser symlink created — agent-browser should work." 2>/dev/null || true
+    else
+        "$SCRIPT_DIR/message.sh" "ERROR: No pre-installed browser found. agent-browser will not work." 2>/dev/null || true
+    fi
 fi
 
 # Save the new version
