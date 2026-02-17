@@ -4,10 +4,8 @@
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "nodeGypDependencies": true,
-      "version": "22"
-    },
-    "ghcr.io/devcontainers-contrib/features/pnpm:2": {
-      "version": "latest"
+      "version": "22",
+      "pnpmVersion": "latest"
     }
   },
   "customizations": {
