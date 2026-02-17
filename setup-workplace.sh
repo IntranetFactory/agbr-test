@@ -29,13 +29,22 @@ echo "Updating workplace from $CURRENT_VERSION to $VERSION..."
 
 # Install global dependencies
 echo "Installing agent-browser globally..."
-npm install -g agent-browser
+if ! npm install -g agent-browser; then
+    echo "Error: Failed to install agent-browser globally"
+    exit 1
+fi
 
 echo "Installing agent-browser dependencies..."
-agent-browser install --with-deps
+if ! agent-browser install --with-deps; then
+    echo "Error: Failed to install agent-browser dependencies"
+    exit 1
+fi
 
 echo "Installing project dependencies with pnpm..."
-pnpm install --frozen-lockfile
+if ! pnpm install --frozen-lockfile; then
+    echo "Error: Failed to install project dependencies"
+    exit 1
+fi
 
 # Save the new version
 echo "$VERSION" > "$VERSION_FILE"
