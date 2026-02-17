@@ -1,0 +1,11 @@
+{
+  "sessionStart": {
+    "commands": [
+      {
+        "command": "bash",
+        "args": ["setup-workplace.sh"],
+        "description": "Run workplace setup script to configure environment and install dependencies"
+      }
+    ]
+  }
+}

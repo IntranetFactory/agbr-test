@@ -62,16 +62,17 @@ git clone https://github.com/IntranetFactory/agbr-test.git
 cd agbr-test
 ```
 
-2. Install dependencies:
+2. Run the setup script:
 ```bash
-pnpm install
+bash setup-workplace.sh
 ```
 
-3. Install browser automation tools:
-```bash
-cd apps/web
-npx agent-browser install
-```
+This script will automatically:
+- Install agent-browser globally
+- Install agent-browser dependencies
+- Install project dependencies with pnpm
+
+**Note:** If you're using VS Code DevContainer (`.devcontainer/devcontainer.json`) or Claude Code Sandbox (`.claude/hooks.json`), the setup script will run automatically when the container is created or when a new session starts.
 
 ### Development with VS Code and DevContainer
 
