@@ -1,6 +1,6 @@
 # agbr-test
 
-A modern React monorepo built with pnpm workspaces, Turborepo, Vite, TypeScript, Tailwind CSS v4, shadcn/ui, and agent-browser for automated testing.
+A modern React monorepo built with pnpm workspaces, Turborepo, Vite, TypeScript, Tailwind CSS v4, shadcn/ui, and agent-browser for automated testing. 
 
 ![Welcome Page](apps/web/screenshots/welcome.png)
 
