@@ -1,5 +1,0 @@
-#!/bin/bash
-# Post-merge hook
-# Runs workplace/setup.sh after merge if needed
-
-./workplace/setup.sh
