@@ -2,8 +2,4 @@
 # Post-checkout hook
 # Ensures workspace is set up after checkout
 
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
-    echo "📦 Dependencies not found, running setup..."
-    pnpm install
-fi
+./workplace/setup.sh
