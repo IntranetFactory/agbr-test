@@ -52,11 +52,9 @@ agbr-test/
 
 ### Prerequisites
 - Node.js 18+ 
-- pnpm 9+ (will be installed automatically if using packageManager field)
+- pnpm 9+ (will be installed automatically via packageManager field)
 
 ### Installation
-
-⚠️ **IMPORTANT:** After cloning this repository, you **MUST** run the setup script to configure the workspace properly.
 
 1. Clone the repository:
 ```bash
@@ -64,27 +62,31 @@ git clone https://github.com/IntranetFactory/agbr-test.git
 cd agbr-test
 ```
 
-2. Run the setup script:
+2. Install dependencies (this does EVERYTHING):
 ```bash
-bash workplace/setup.sh
+pnpm install
 ```
 
-This script will automatically:
-- Install agent-browser globally
-- Install agent-browser dependencies (Playwright)
-- Install project dependencies with pnpm
-- Configure Git hooks via Husky
+That's it! The `pnpm install` command automatically:
+- Installs all project dependencies
+- Configures Git hooks via Husky (prepare script)
+- Installs agent-browser globally (postinstall script)
+- Installs Playwright browsers (postinstall script)
 
 3. Verify your setup (optional):
 ```bash
 bash workplace/check-setup.sh
 ```
 
-This will check that all required tools are installed and configured properly.
+**Why just `pnpm install`?** 
+- The `prepare` script runs during install and configures Husky hooks
+- The `postinstall` script completes workspace setup (agent-browser, Playwright, etc.)
+- After the first install, Git hooks automatically maintain the workspace:
+  - `post-checkout`: Runs `pnpm install` if dependencies are missing after checkout
+  - `post-merge`: Runs `pnpm install` if dependencies are missing after merge
+  - `pre-commit`: Runs tests before allowing commits
 
-**Why is this required?** Git hooks (including the post-checkout hook) don't run during the initial `git clone` operation, so the automatic setup can't happen. You must run the setup script manually after cloning. After the first setup, subsequent checkouts and merges will automatically run the setup script if needed.
-
-**Note:** If you're using VS Code DevContainer (`.devcontainer/devcontainer.json`) or Claude Code Sandbox (`.claude/hooks.json`), the setup script will run automatically when the container is created or when a new session starts.
+**Note:** If you're using VS Code DevContainer (`.devcontainer/devcontainer.json`) or Claude Code Sandbox (`.claude/hooks.json`), dependencies install automatically when the container is created.
 
 ### Development with VS Code and DevContainer
 
