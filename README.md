@@ -56,6 +56,8 @@ agbr-test/
 
 ### Installation
 
+⚠️ **IMPORTANT:** After cloning this repository, you **MUST** run the setup script to configure the workspace properly.
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/IntranetFactory/agbr-test.git
@@ -69,8 +71,18 @@ bash workplace/setup.sh
 
 This script will automatically:
 - Install agent-browser globally
-- Install agent-browser dependencies
+- Install agent-browser dependencies (Playwright)
 - Install project dependencies with pnpm
+- Configure Git hooks via Husky
+
+3. Verify your setup (optional):
+```bash
+bash workplace/check-setup.sh
+```
+
+This will check that all required tools are installed and configured properly.
+
+**Why is this required?** Git hooks (including the post-checkout hook) don't run during the initial `git clone` operation, so the automatic setup can't happen. You must run the setup script manually after cloning. After the first setup, subsequent checkouts and merges will automatically run the setup script if needed.
 
 **Note:** If you're using VS Code DevContainer (`.devcontainer/devcontainer.json`) or Claude Code Sandbox (`.claude/hooks.json`), the setup script will run automatically when the container is created or when a new session starts.
 

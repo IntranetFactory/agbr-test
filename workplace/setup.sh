@@ -56,6 +56,24 @@ npx --yes playwright install --with-deps chromium
 echo "Installing project dependencies with pnpm..."
 pnpm install --frozen-lockfile
 
+# Verify Husky hooks are configured
+echo "Verifying Git hooks configuration..."
+HOOKS_PATH=$(git config core.hooksPath || echo "")
+if [ "$HOOKS_PATH" != ".husky/_" ]; then
+    echo "WARNING: Git hooks not configured properly. Expected core.hooksPath=.husky/_"
+    echo "Attempting to fix by running pnpm prepare..."
+    pnpm prepare
+    HOOKS_PATH=$(git config core.hooksPath || echo "")
+    if [ "$HOOKS_PATH" = ".husky/_" ]; then
+        echo "✓ Git hooks configured successfully"
+    else
+        echo "ERROR: Could not configure Git hooks"
+        exit 1
+    fi
+else
+    echo "✓ Git hooks already configured"
+fi
+
 # Save the new version
 echo "$VERSION" > "$VERSION_FILE"
 echo "Workplace updated to version $VERSION"
