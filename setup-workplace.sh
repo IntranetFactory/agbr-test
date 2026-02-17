@@ -36,7 +36,7 @@ fi
 
 echo "Installing agent-browser dependencies..."
 # agent-browser install --with-deps
-if ! npx --yes playwright install-deps chromium; then
+if ! npx --yes playwright install --with-deps chromium; then
     echo "Error: Failed to install agent-browser dependencies"
     exit 1
 fi
