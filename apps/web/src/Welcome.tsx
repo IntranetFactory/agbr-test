@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,6 +11,25 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 function Welcome() {
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    })
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -21,6 +41,9 @@ function Welcome() {
           <p className="text-xl text-slate-600 dark:text-slate-400">
             Built with React, Vite, and shadcn/ui
           </p>
+          <div className="text-3xl font-semibold text-primary mt-4">
+            {formatTime(currentTime)}
+          </div>
         </div>
 
         {/* Alert */}
