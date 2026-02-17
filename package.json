@@ -8,8 +8,7 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
-    "prepare": "husky",
-    "postinstall": "bash workplace/postinstall.sh"
+    "prepare": "husky"
   },
   "devDependencies": {
     "husky": "^9.1.7",
