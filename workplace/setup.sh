@@ -58,18 +58,19 @@ pnpm install --frozen-lockfile
 
 # Verify Husky hooks are configured
 echo "Verifying Git hooks configuration..."
+EXPECTED_HOOKS_PATH=".husky/_"
 HOOKS_PATH=$(git config core.hooksPath || echo "")
-if [ "$HOOKS_PATH" != ".husky/_" ]; then
-    echo "WARNING: Git hooks not configured properly. Expected core.hooksPath=.husky/_"
+if [ "$HOOKS_PATH" != "$EXPECTED_HOOKS_PATH" ]; then
+    echo "WARNING: Git hooks not configured properly. Expected core.hooksPath=$EXPECTED_HOOKS_PATH"
     echo "Attempting to fix by running pnpm prepare..."
     pnpm prepare
     HOOKS_PATH=$(git config core.hooksPath || echo "")
-    if [ "$HOOKS_PATH" = ".husky/_" ]; then
-        echo "✓ Git hooks configured successfully"
-    else
+    # Verify the fix worked
+    if [ "$HOOKS_PATH" != "$EXPECTED_HOOKS_PATH" ]; then
         echo "ERROR: Could not configure Git hooks"
         exit 1
     fi
+    echo "✓ Git hooks configured successfully"
 else
     echo "✓ Git hooks already configured"
 fi

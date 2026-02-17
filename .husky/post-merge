@@ -2,4 +2,15 @@
 # Post-merge hook
 # Runs workplace/setup.sh after merge if needed
 
-./workplace/setup.sh
+# Check if setup script exists
+if [ ! -f "./workplace/setup.sh" ]; then
+    echo "Warning: workplace/setup.sh not found, skipping setup"
+    exit 0
+fi
+
+# Run setup script, but don't fail the merge if setup fails
+./workplace/setup.sh || {
+    echo "Warning: workplace/setup.sh failed with exit code $?"
+    echo "You may need to run it manually: bash workplace/setup.sh"
+    exit 0
+}

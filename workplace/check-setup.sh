@@ -54,11 +54,12 @@ fi
 
 # Check if Playwright browsers are installed
 PLAYWRIGHT_CACHE="$HOME/.cache/ms-playwright"
-if [ ! -d "$PLAYWRIGHT_CACHE" ] || [ -z "$(ls -A "$PLAYWRIGHT_CACHE" 2>/dev/null | grep chromium)" ]; then
+# Check for chromium directory with version suffix (e.g., chromium-1208, chromium_headless_shell-1208)
+if [ -d "$PLAYWRIGHT_CACHE" ] && find "$PLAYWRIGHT_CACHE" -maxdepth 1 -type d -name "chromium*" | grep -q .; then
+    echo "✅ Playwright browsers installed"
+else
     echo "⚠️  Playwright Chromium not found in cache"
     echo "   Run: npx playwright install chromium"
-else
-    echo "✅ Playwright browsers installed"
 fi
 
 echo
