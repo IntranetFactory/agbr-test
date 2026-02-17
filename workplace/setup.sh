@@ -49,9 +49,8 @@ echo "Updating workplace from $CURRENT_VERSION to $VERSION..."
 echo "Installing agent-browser globally..."
 npm install -g agent-browser
 
-echo "Installing agent-browser dependencies..."
-# agent-browser install --with-deps
-npx --yes -p agent-browser playwright install --with-deps chromium
+echo "Installing Playwright browsers..."
+npx --yes playwright install --with-deps chromium
 
 echo "Installing project dependencies with pnpm..."
 pnpm install --frozen-lockfile
