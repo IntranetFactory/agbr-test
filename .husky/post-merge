@@ -1,9 +1,5 @@
 #!/bin/bash
-# Post-merge hook  
-# Ensures workspace is set up after merge
+# Post-merge hook
+# Runs workplace/setup.sh after merge if needed
 
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
-    echo "📦 Dependencies not found, running setup..."
-    pnpm install
-fi
+./workplace/setup.sh
