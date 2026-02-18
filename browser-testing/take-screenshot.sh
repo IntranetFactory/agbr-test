@@ -9,12 +9,26 @@
 
 set -e
 
+# Trap to ensure cleanup happens even if script fails
+cleanup() {
+  echo "Stopping development server..."
+  if [ -n "$DEV_PID" ]; then
+    # Kill the process group
+    kill -TERM -$DEV_PID 2>/dev/null || true
+    # Also kill any remaining node/vite processes on port 5173
+    lsof -ti:5173 | xargs -r kill -9 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+
 echo "Starting development server..."
 cd "$(dirname "$0")/../apps/web"
 
-# Start dev server in background
+# Start dev server in background with new process group
+set -m
 pnpm dev &
 DEV_PID=$!
+set +m
 
 # Wait for server to be ready with polling
 echo "Waiting for server to start..."
@@ -31,7 +45,6 @@ done
 
 if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
   echo "Error: Server failed to start within 30 seconds"
-  kill $DEV_PID 2>/dev/null || true
   exit 1
 fi
 
@@ -42,9 +55,5 @@ agent-browser open http://localhost:5173/
 agent-browser wait --load networkidle
 agent-browser screenshot --full apps/web/screenshots/welcome.png
 agent-browser close
-
-# Stop dev server and all child processes
-echo "Stopping development server..."
-kill -- -$DEV_PID 2>/dev/null || true
 
 echo "✓ Screenshot saved to apps/web/screenshots/welcome.png"
