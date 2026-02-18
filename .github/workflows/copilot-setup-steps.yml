@@ -1,31 +1,24 @@
 name: Copilot Setup Steps
-
 on:
   workflow_dispatch:
   push:
     branches:
       - main
   pull_request:
-
 jobs:
-  setup:
+  copilot-setup-steps:  # Changed from 'setup' to 'copilot-setup-steps'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
+        # Removed the 'version: 9' line to use packageManager version from package.json
       - name: Run setup script
         run: bash workplace/setup.sh
