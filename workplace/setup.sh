@@ -78,35 +78,49 @@ PYEOF
     fi
 fi
 
-# Wipe any existing installation for the required revision so we start clean
+# Check if the browser executable already exists; if so, skip installation
+EXISTING_EXECUTABLE=""
 if [ -n "$REQUIRED_REVISION" ]; then
-    REQUIRED_DIR="$BROWSERS_PATH/chromium_headless_shell-$REQUIRED_REVISION"
-    if [ -d "$REQUIRED_DIR" ]; then
-        "$SCRIPT_DIR/message.sh" "Removing existing browser installation at $REQUIRED_DIR..." 2>/dev/null || true
-        rm -rf "$REQUIRED_DIR"
+    CANDIDATE="$BROWSERS_PATH/chromium_headless_shell-$REQUIRED_REVISION/chrome-headless-shell-linux64/chrome-headless-shell"
+    if [ -f "$CANDIDATE" ] && [ -x "$CANDIDATE" ]; then
+        EXISTING_EXECUTABLE="$CANDIDATE"
     fi
 fi
 
-# Fresh install with --with-deps to also pull in OS shared libraries
-if [ -n "$PLAYWRIGHT_CLI" ]; then
-    INSTALL_OUTPUT_FILE=$(mktemp)
-    if node "$PLAYWRIGHT_CLI" install --with-deps chromium-headless-shell 2>&1 | tee "$INSTALL_OUTPUT_FILE"; then
-        "$SCRIPT_DIR/message.sh" "Playwright browser installed successfully" 2>/dev/null || true
-    else
-        # Extract the download URL from playwright's output so it can be whitelisted
-        DOWNLOAD_URL=$(grep -oP 'from \Khttps?://\S+' "$INSTALL_OUTPUT_FILE" | head -1)
-        rm -f "$INSTALL_OUTPUT_FILE"
-        if [ -n "$DOWNLOAD_URL" ]; then
-            "$SCRIPT_DIR/message.sh" "ERROR: Playwright browser download failed (CDN blocked). Whitelist this URL: $DOWNLOAD_URL" 2>/dev/null || true
-        else
-            "$SCRIPT_DIR/message.sh" "ERROR: Playwright browser download failed (CDN blocked)." 2>/dev/null || true
+if [ -n "$EXISTING_EXECUTABLE" ]; then
+    export AGENT_BROWSER_EXECUTABLE_PATH="$EXISTING_EXECUTABLE"
+    "$SCRIPT_DIR/message.sh" "Browser executable found at $EXISTING_EXECUTABLE, skipping installation" 2>/dev/null || true
+else
+    # Wipe any existing installation for the required revision so we start clean
+    if [ -n "$REQUIRED_REVISION" ]; then
+        REQUIRED_DIR="$BROWSERS_PATH/chromium_headless_shell-$REQUIRED_REVISION"
+        if [ -d "$REQUIRED_DIR" ]; then
+            "$SCRIPT_DIR/message.sh" "Removing existing browser installation at $REQUIRED_DIR..." 2>/dev/null || true
+            rm -rf "$REQUIRED_DIR"
         fi
+    fi
+
+    # Fresh install with --with-deps to also pull in OS shared libraries
+    if [ -n "$PLAYWRIGHT_CLI" ]; then
+        INSTALL_OUTPUT_FILE=$(mktemp)
+        if node "$PLAYWRIGHT_CLI" install --with-deps chromium-headless-shell 2>&1 | tee "$INSTALL_OUTPUT_FILE"; then
+            "$SCRIPT_DIR/message.sh" "Playwright browser installed successfully" 2>/dev/null || true
+        else
+            # Extract the download URL from playwright's output so it can be whitelisted
+            DOWNLOAD_URL=$(grep -oP 'from \Khttps?://\S+' "$INSTALL_OUTPUT_FILE" | head -1)
+            rm -f "$INSTALL_OUTPUT_FILE"
+            if [ -n "$DOWNLOAD_URL" ]; then
+                "$SCRIPT_DIR/message.sh" "ERROR: Playwright browser download failed (CDN blocked). Whitelist this URL: $DOWNLOAD_URL" 2>/dev/null || true
+            else
+                "$SCRIPT_DIR/message.sh" "ERROR: Playwright browser download failed (CDN blocked)." 2>/dev/null || true
+            fi
+            exit 1
+        fi
+        rm -f "$INSTALL_OUTPUT_FILE"
+    else
+        "$SCRIPT_DIR/message.sh" "ERROR: playwright-core CLI not found. Cannot install browser." 2>/dev/null || true
         exit 1
     fi
-    rm -f "$INSTALL_OUTPUT_FILE"
-else
-    "$SCRIPT_DIR/message.sh" "ERROR: playwright-core CLI not found. Cannot install browser." 2>/dev/null || true
-    exit 1
 fi
 
 # Save the new version
