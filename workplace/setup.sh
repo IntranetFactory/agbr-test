@@ -77,7 +77,7 @@ fi
 # ── Version gate (runs only when upgrading) ────────────────────────────────
 
 # Current script version
-VERSION="007"
+VERSION="008"
 
 # Path to the version file
 VERSION_FILE=".workplace-version"
@@ -99,6 +99,50 @@ fi
 
 # Install global dependencies
 npm install -g agent-browser
+
+# Re-resolve playwright-core CLI in case agent-browser wasn't pre-installed
+# (the earlier search runs before npm install, so it may have found nothing)
+if [ -z "$PLAYWRIGHT_CLI" ]; then
+    PLAYWRIGHT_CLI=$(find node_modules/.pnpm -maxdepth 4 -name "cli.js" -path "*/playwright-core/cli.js" 2>/dev/null | head -1)
+fi
+if [ -z "$PLAYWRIGHT_CLI" ]; then
+    PLAYWRIGHT_CLI=$(find /opt/node*/lib/node_modules/agent-browser/node_modules/playwright-core -name "cli.js" 2>/dev/null | head -1)
+fi
+
+# Re-resolve REQUIRED_REVISION and BROWSER_READY if they weren't set earlier
+if [ -z "$REQUIRED_REVISION" ] && [ -n "$PLAYWRIGHT_CLI" ]; then
+    BROWSERS_JSON="$(dirname "$PLAYWRIGHT_CLI")/browsers.json"
+    if [ -f "$BROWSERS_JSON" ] && command -v python3 &>/dev/null; then
+        REQUIRED_REVISION=$(python3 - "$BROWSERS_JSON" <<'PYEOF'
+import json, sys
+with open(sys.argv[1]) as f:
+    data = json.load(f)
+for b in data.get('browsers', []):
+    if b.get('name') == 'chromium-headless-shell':
+        print(b.get('revision', ''))
+        break
+PYEOF
+)
+    fi
+    if [ -n "$REQUIRED_REVISION" ]; then
+        REQUIRED_DIR="$BROWSERS_PATH/chromium_headless_shell-$REQUIRED_REVISION"
+        CANDIDATE="$REQUIRED_DIR/chrome-headless-shell-linux64/chrome-headless-shell"
+        if [ -f "$CANDIDATE" ] && [ -x "$CANDIDATE" ]; then
+            BROWSER_READY=true
+        else
+            EXISTING_DIR=$(find "$BROWSERS_PATH" -maxdepth 1 -name "chromium_headless_shell-*" -not -name "chromium_headless_shell-$REQUIRED_REVISION" -type d 2>/dev/null | head -1)
+            if [ -n "$EXISTING_DIR" ]; then
+                EXISTING_EXE=$(find "$EXISTING_DIR" -type f \( -name "headless_shell" -o -name "chrome-headless-shell" \) 2>/dev/null | head -1)
+                if [ -n "$EXISTING_EXE" ] && [ -x "$EXISTING_EXE" ]; then
+                    mkdir -p "$REQUIRED_DIR/chrome-headless-shell-linux64"
+                    ln -sfn "$EXISTING_EXE" "$REQUIRED_DIR/chrome-headless-shell-linux64/chrome-headless-shell"
+                    "$SCRIPT_DIR/message.sh" "Symlinked $(basename "$EXISTING_DIR") -> chromium_headless_shell-$REQUIRED_REVISION" 2>/dev/null || true
+                    BROWSER_READY=true
+                fi
+            fi
+        fi
+    fi
+fi
 
 # Install project dependencies
 pnpm install --frozen-lockfile
