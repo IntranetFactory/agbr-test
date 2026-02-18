@@ -16,9 +16,24 @@ cd "$(dirname "$0")/../apps/web"
 pnpm dev &
 DEV_PID=$!
 
-# Wait for server to be ready
+# Wait for server to be ready with polling
 echo "Waiting for server to start..."
-sleep 5
+MAX_ATTEMPTS=30
+ATTEMPT=0
+while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+  if curl -s http://localhost:5173 > /dev/null 2>&1; then
+    echo "Server is ready!"
+    break
+  fi
+  ATTEMPT=$((ATTEMPT + 1))
+  sleep 1
+done
+
+if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+  echo "Error: Server failed to start within 30 seconds"
+  kill $DEV_PID 2>/dev/null || true
+  exit 1
+fi
 
 # Take screenshot
 echo "Taking screenshot..."
@@ -28,8 +43,8 @@ agent-browser wait --load networkidle
 agent-browser screenshot --full apps/web/screenshots/welcome.png
 agent-browser close
 
-# Stop dev server
+# Stop dev server and all child processes
 echo "Stopping development server..."
-kill $DEV_PID 2>/dev/null || true
+kill -- -$DEV_PID 2>/dev/null || true
 
 echo "✓ Screenshot saved to apps/web/screenshots/welcome.png"
