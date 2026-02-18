@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      VARIABLE: "test-variable-value"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,4 +22,6 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
       - name: Run setup script
+        env:
+          SECRET: ${{ secrets.SECRET }}
         run: bash workplace/setup.sh
