@@ -1,7 +1,6 @@
 {
   "name": "agbr-test",
-  "image": "://mcr.microsoft.com",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "image": "://mcr.microsoft.com",  
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "nodeGypDependencies": true,
