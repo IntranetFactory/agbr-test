@@ -1,6 +1,6 @@
 {
   "name": "agbr-test",
-  "image": "://mcr.microsoft.com",  
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm", 
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "nodeGypDependencies": true,
