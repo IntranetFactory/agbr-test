@@ -18,6 +18,7 @@
         "anthropic.claude-code"
       ],
       "settings": {
+        "terminal.integrated.cwd": "/workspaces/${localWorkspaceFolderBasename}",
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.codeActionsOnSave": {
