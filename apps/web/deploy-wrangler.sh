@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# 1. Configuration & Slugs
+REPO_NAME=$(basename -s .git $(git config --get remote.origin.url) | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+RAW_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# Use "prod" as the alias if on main, otherwise the branch name
+BRANCH_SLUG=$(echo "$RAW_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+
+# 2. Build
+pnpm run build
+
+# 3. Logic: Default to Preview unless --prod or --production is passed
+if [[ "$*" == *"--prod"* ]] || [[ "$*" == *"--production"* ]]; then
+  echo "🚀 [PRODUCTION] Deploying live: $REPO_NAME"
+  
+  pnpm wrangler deploy --name "$REPO_NAME"
+else
+  echo "🔗 [PREVIEW] Deploying preview: $BRANCH_SLUG.$REPO_NAME"
+  
+  pnpm wrangler versions upload \
+    --name "$REPO_NAME" \
+    --preview-alias "$BRANCH_SLUG" \
+    --tag "$RAW_BRANCH" \
+    --message "Preview upload for: $RAW_BRANCH"
+fi

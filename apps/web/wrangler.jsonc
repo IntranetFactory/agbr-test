@@ -1,0 +1,12 @@
+{   
+  "compatibility_date": "2026-02-20", 
+  "assets": {
+    /* Points to the folder Vite generates */
+    "directory": "./dist",
+    /* Ensures your SPA routes (like /about) don't 404 */
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
