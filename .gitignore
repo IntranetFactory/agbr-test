@@ -32,3 +32,4 @@ dist-ssr
 
 # Workplace version tracking
 .workplace-version
+.preview-url.md
