@@ -63,7 +63,7 @@ echo "Installing agent-browser globally..."
 npm install -g agent-browser
 
 echo "Installing dotenvx globally..."
-npm install -g @dotenvx/dotenvxcd 
+npm install -g @dotenvx/dotenvx
 
 echo "Installing cloudflare wrangler globally..."
 npm install -g wrangler
