@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "description": "Modern React monorepo with Vite, TypeScript, shadcn/ui, and agent-browser",
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "dotenvx run -- turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "test": "turbo test",
+    "test": "dotenvx run -- turbo test",
+    "preview": "dotenvx run -- turbo preview",
+    "preview:wrangler": "dotenvx run -- turbo preview:wrangler",
     "prepare": "husky"
   },
   "devDependencies": {

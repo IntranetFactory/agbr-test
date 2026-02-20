@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Current script version
+VERSION="002"
+
 # Setup workplace script
 # This script configures the environment and dependencies after checkout
 
@@ -26,8 +29,6 @@ error_handler() {
 trap 'error_handler ${LINENO}' ERR
 set -e
 
-# Current script version
-VERSION="001"
 
 # Path to the version file
 VERSION_FILE=".workplace-version"
@@ -60,6 +61,9 @@ echo "Updating workplace from $CURRENT_VERSION to $VERSION..."
 # Install global dependencies
 echo "Installing agent-browser globally..."
 npm install -g agent-browser
+
+echo "Installing dotenvx globally..."
+npm install -g @dotenvx/dotenvxcd 
 
 echo "Installing cloudflare wrangler globally..."
 npm install -g wrangler

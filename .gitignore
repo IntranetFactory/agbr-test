@@ -28,7 +28,7 @@ dist-ssr
 *.sw?
 
 .dist
-.env
+.env.keys
 
 # Workplace version tracking
 .workplace-version

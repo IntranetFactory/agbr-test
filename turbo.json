@@ -1,6 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
+  "globalDependencies": [
+    ".env", 
+    "**/.env.*local"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -15,6 +18,13 @@
     },
     "test": {
       "dependsOn": ["^build"]
+    },
+    "preview": {
+      "cache": false
+    },
+    "preview:wrangler": {
+      "cache": false,
+      "passThroughEnv": ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"]
     }
   }
 }
