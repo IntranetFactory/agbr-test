@@ -36,7 +36,7 @@ function Welcome() {
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
-            Welcome to Our App
+            {"Welcome to " + window.location.href}
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400">
             Built with React, Vite, and shadcn/ui

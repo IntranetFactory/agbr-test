@@ -110,3 +110,50 @@ When asked to implement and verify a change:
 
 > ❌ **A screenshot taken from `localhost` or `127.0.0.1` does not count as verification.**
 > The task is not complete until a screenshot from the `.preview-url.md` URL is saved.
+
+## PR Description Requirements — MANDATORY FOR EVERY PR
+
+Every PR description submitted via **report_progress** **MUST** include both of the following. No exceptions.
+
+### 1. Preview URL — show the full URL, not hidden link text
+
+Always include the Cloudflare preview URL read from `.preview-url.md` as a **bare URL** so it is fully visible to the reviewer. Do NOT hide it behind link text like "Live preview →".
+
+```markdown
+## Preview
+https://copilot-<branch>-agbr-test.ma532.workers.dev
+```
+
+> ❌ **Wrong:** `[Live preview →](https://copilot-...)` — hides the URL behind text
+> ✅ **Correct:** `https://copilot-...` — the full URL is visible
+
+### 2. Screenshots embedded in the PR — use absolute raw GitHub URLs
+
+Relative paths like `screenshots/file.png` do **not** render in GitHub PR descriptions because GitHub resolves images from the default branch (`main`), not the PR branch. Always use the absolute `raw.githubusercontent.com` URL.
+
+URL format:
+```
+https://raw.githubusercontent.com/IntranetFactory/agbr-test/<branch-name>/screenshots/YYYYMMDDHHMMSS-short-title.png
+```
+
+```markdown
+## Screenshots
+![description](https://raw.githubusercontent.com/IntranetFactory/agbr-test/<branch-name>/screenshots/YYYYMMDDHHMMSS-short-title.png)
+```
+
+> ❌ **Wrong:** `![alt](screenshots/file.png)` — broken image in PR (relative path, not merged yet)
+> ✅ **Correct:** `![alt](https://raw.githubusercontent.com/IntranetFactory/agbr-test/<branch>/screenshots/file.png)`
+
+> ⚠️ Screenshots mentioned only in comments do NOT satisfy this requirement. They must be **visible inline** in the PR description itself so reviewers can see them without clicking.
+
+### Example `prDescription` for report_progress
+
+```markdown
+- [x] Changed heading to show URL
+
+## Preview
+https://copilot-my-branch-agbr-test.ma532.workers.dev
+
+## Screenshots
+![Home page heading showing window.location.href](https://raw.githubusercontent.com/IntranetFactory/agbr-test/copilot/my-branch/screenshots/20240315143022-checkout-flow.png)
+```
