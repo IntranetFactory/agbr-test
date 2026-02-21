@@ -31,8 +31,11 @@ pnpm run build
 # 4. wrangler fails to publish when running in Copilot sandbox, the GitHub GoProxy seems to be non standard compliant
 #    Load a GoProxy compatibility fix so wrangler/undici sends Title-Case
 #    Content-Length headers that the MITM proxy can parse.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export NODE_OPTIONS="--require ${SCRIPT_DIR}/fix-proxy-compat.cjs${NODE_OPTIONS:+ $NODE_OPTIONS}"
+#    Only apply this fix when running inside the GitHub Copilot sandbox.
+if [[ -n "$COPILOT_AGENT_CALLBACK_URL" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  export NODE_OPTIONS="--require ${SCRIPT_DIR}/fix-copilot-proxy-compat.cjs${NODE_OPTIONS:+ $NODE_OPTIONS}"
+fi
 
 # 5. Logic: Default to Preview unless --prod or --production is passed
 if [[ "$*" == *"--prod"* ]] || [[ "$*" == *"--production"* ]]; then
