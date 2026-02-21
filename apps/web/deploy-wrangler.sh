@@ -1,10 +1,13 @@
 #!/bin/bash
+set -e
 
 # 1. Configuration & Slugs
 REPO_NAME=$(basename -s .git $(git config --get remote.origin.url) | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
 RAW_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 # Use "prod" as the alias if on main, otherwise the branch name
 BRANCH_SLUG=$(echo "$RAW_BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+# Cloudflare Workers tag limit is 25 characters
+BRANCH_TAG=$(echo "$BRANCH_SLUG" | cut -c1-25)
 
 # 2. Fetch Cloudflare Workers subdomain
 if [[ -z "$CLOUDFLARE_API_TOKEN" ]]; then
@@ -25,11 +28,16 @@ echo "Workers subdomain: $CF_SUBDOMAIN"
 # 3. Build
 pnpm run build
 
-# 4. Logic: Default to Preview unless --prod or --production is passed
+# 4. Load the GoProxy compatibility fix so wrangler/undici sends Title-Case
+#    Content-Length headers that the MITM proxy can parse.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export NODE_OPTIONS="--require ${SCRIPT_DIR}/fix-proxy-compat.cjs${NODE_OPTIONS:+ $NODE_OPTIONS}"
+
+# 5. Logic: Default to Preview unless --prod or --production is passed
 if [[ "$*" == *"--prod"* ]] || [[ "$*" == *"--production"* ]]; then
   echo "🚀 [PRODUCTION] Deploying live: $REPO_NAME"
 
-  pnpm wrangler deploy --name "$REPO_NAME"
+  pnpm wrangler deploy --name "$REPO_NAME" || { echo "❌ Deployment failed" >&2; exit 1; }
 
   DEPLOY_URL="https://$REPO_NAME.$CF_SUBDOMAIN.workers.dev"
 else
@@ -38,8 +46,8 @@ else
   pnpm wrangler versions upload \
     --name "$REPO_NAME" \
     --preview-alias "$BRANCH_SLUG" \
-    --tag "$RAW_BRANCH" \
-    --message "Preview upload for: $RAW_BRANCH"
+    --tag "$BRANCH_TAG" \
+    --message "Preview upload for: $RAW_BRANCH" || { echo "❌ Preview deployment failed" >&2; exit 1; }
 
   DEPLOY_URL="https://$BRANCH_SLUG-$REPO_NAME.$CF_SUBDOMAIN.workers.dev"
 fi
