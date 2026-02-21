@@ -110,3 +110,39 @@ When asked to implement and verify a change:
 
 > ❌ **A screenshot taken from `localhost` or `127.0.0.1` does not count as verification.**
 > The task is not complete until a screenshot from the `.preview-url.md` URL is saved.
+
+## PR Description Requirements — MANDATORY FOR EVERY PR
+
+Every PR description submitted via **report_progress** **MUST** include both of the following. No exceptions.
+
+### 1. Preview URL (clickable link)
+
+Always include the Cloudflare preview URL read from `.preview-url.md` as a clickable Markdown link:
+
+```markdown
+## Preview
+[Live preview →](https://copilot-<branch>-agbr-test.ma532.workers.dev)
+```
+
+### 2. Screenshots embedded in the PR
+
+All verification screenshots **must be embedded** directly in the PR description using Markdown image syntax referencing the committed file path:
+
+```markdown
+## Screenshots
+![description](screenshots/YYYYMMDDHHMMSS-short-title.png)
+```
+
+> ⚠️ Screenshots mentioned only in comments do NOT satisfy this requirement. They must be **visible inline** in the PR description itself so reviewers can see them without clicking.
+
+### Example `prDescription` for report_progress
+
+```markdown
+- [x] Changed heading to show URL
+
+## Preview
+[Live preview →](https://copilot-my-branch-agbr-test.ma532.workers.dev)
+
+## Screenshots
+![Home page heading showing window.location.href](screenshots/20240315143022-checkout-flow.png)
+```
