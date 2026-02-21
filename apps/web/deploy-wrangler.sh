@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # 1. Configuration & Slugs
 REPO_NAME=$(basename -s .git $(git config --get remote.origin.url) | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
@@ -29,7 +30,7 @@ pnpm run build
 if [[ "$*" == *"--prod"* ]] || [[ "$*" == *"--production"* ]]; then
   echo "🚀 [PRODUCTION] Deploying live: $REPO_NAME"
 
-  pnpm wrangler deploy --name "$REPO_NAME"
+  pnpm wrangler deploy --name "$REPO_NAME" || { echo "❌ Deployment failed" >&2; exit 1; }
 
   DEPLOY_URL="https://$REPO_NAME.$CF_SUBDOMAIN.workers.dev"
 else
@@ -39,7 +40,7 @@ else
     --name "$REPO_NAME" \
     --preview-alias "$BRANCH_SLUG" \
     --tag "$RAW_BRANCH" \
-    --message "Preview upload for: $RAW_BRANCH"
+    --message "Preview upload for: $RAW_BRANCH" || { echo "❌ Preview deployment failed" >&2; exit 1; }
 
   DEPLOY_URL="https://$BRANCH_SLUG-$REPO_NAME.$CF_SUBDOMAIN.workers.dev"
 fi
