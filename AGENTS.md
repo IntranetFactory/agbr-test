@@ -115,23 +115,34 @@ When asked to implement and verify a change:
 
 Every PR description submitted via **report_progress** **MUST** include both of the following. No exceptions.
 
-### 1. Preview URL (clickable link)
+### 1. Preview URL — show the full URL, not hidden link text
 
-Always include the Cloudflare preview URL read from `.preview-url.md` as a clickable Markdown link:
+Always include the Cloudflare preview URL read from `.preview-url.md` as a **bare URL** so it is fully visible to the reviewer. Do NOT hide it behind link text like "Live preview →".
 
 ```markdown
 ## Preview
-[Live preview →](https://copilot-<branch>-agbr-test.ma532.workers.dev)
+https://copilot-<branch>-agbr-test.ma532.workers.dev
 ```
 
-### 2. Screenshots embedded in the PR
+> ❌ **Wrong:** `[Live preview →](https://copilot-...)` — hides the URL behind text
+> ✅ **Correct:** `https://copilot-...` — the full URL is visible
 
-All verification screenshots **must be embedded** directly in the PR description using Markdown image syntax referencing the committed file path:
+### 2. Screenshots embedded in the PR — use absolute raw GitHub URLs
+
+Relative paths like `screenshots/file.png` do **not** render in GitHub PR descriptions because GitHub resolves images from the default branch (`main`), not the PR branch. Always use the absolute `raw.githubusercontent.com` URL.
+
+URL format:
+```
+https://raw.githubusercontent.com/IntranetFactory/agbr-test/<branch-name>/screenshots/YYYYMMDDHHMMSS-short-title.png
+```
 
 ```markdown
 ## Screenshots
-![description](screenshots/YYYYMMDDHHMMSS-short-title.png)
+![description](https://raw.githubusercontent.com/IntranetFactory/agbr-test/<branch-name>/screenshots/YYYYMMDDHHMMSS-short-title.png)
 ```
+
+> ❌ **Wrong:** `![alt](screenshots/file.png)` — broken image in PR (relative path, not merged yet)
+> ✅ **Correct:** `![alt](https://raw.githubusercontent.com/IntranetFactory/agbr-test/<branch>/screenshots/file.png)`
 
 > ⚠️ Screenshots mentioned only in comments do NOT satisfy this requirement. They must be **visible inline** in the PR description itself so reviewers can see them without clicking.
 
@@ -141,8 +152,8 @@ All verification screenshots **must be embedded** directly in the PR description
 - [x] Changed heading to show URL
 
 ## Preview
-[Live preview →](https://copilot-my-branch-agbr-test.ma532.workers.dev)
+https://copilot-my-branch-agbr-test.ma532.workers.dev
 
 ## Screenshots
-![Home page heading showing window.location.href](screenshots/20240315143022-checkout-flow.png)
+![Home page heading showing window.location.href](https://raw.githubusercontent.com/IntranetFactory/agbr-test/copilot/my-branch/screenshots/20240315143022-checkout-flow.png)
 ```
