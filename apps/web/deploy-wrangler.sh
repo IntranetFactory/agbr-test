@@ -28,7 +28,8 @@ echo "Workers subdomain: $CF_SUBDOMAIN"
 # 3. Build
 pnpm run build
 
-# 4. Load the GoProxy compatibility fix so wrangler/undici sends Title-Case
+# 4. wrangler fails to publish when running in Copilot sandbox, the GitHub GoProxy seems to be non standard compliant
+#    Load a GoProxy compatibility fix so wrangler/undici sends Title-Case
 #    Content-Length headers that the MITM proxy can parse.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export NODE_OPTIONS="--require ${SCRIPT_DIR}/fix-proxy-compat.cjs${NODE_OPTIONS:+ $NODE_OPTIONS}"
