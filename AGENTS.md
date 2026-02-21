@@ -71,6 +71,9 @@ Full skill documentation: `.agents/skills/agent-browser/SKILL.md`
 
 ## Screenshots
 
+> ⚠️ **Screenshots must be taken from the Cloudflare preview URL, never from localhost.**
+> Read `.preview-url.md` after deployment and open that URL before screenshotting.
+
 All verification screenshots **must** be saved to the `screenshots/` folder at the repo root.
 
 Filename format: `YYYYMMDDHHMMSS-<short-title>.png`
@@ -93,11 +96,17 @@ Confidence: 92% — all acceptance criteria visible; minor responsive layout not
 When asked to implement and verify a change:
 
 1. Make the change
-2. Use `pnpm dev` during development for fast Vite feedback
+2. Use `pnpm dev` during development for fast Vite feedback (localhost is for iteration only)
 3. `pnpm build` — confirm no build errors
-4. `pnpm --filter web preview:wrangler` — deploy to Cloudflare (**run from repo root**)
-5. Read `.preview-url.md` for the preview URL
-6. `agent-browser open <url>` then `agent-browser snapshot` / `screenshot` to verify
-7. Save screenshot to `screenshots/YYYYMMDDHHMMSS-<short-title>.png`
-8. Include screenshot path, description, and confidence score in your result comment
-9. Task is complete only after steps 4–8 are done
+4. `pnpm preview:wrangler` — deploy to Cloudflare via turbo (**run from repo root**)
+5. Read `.preview-url.md` — this is the only valid URL for verification screenshots
+```bash
+   cat .preview-url.md   # e.g. https://abc123.your-project.workers.dev
+```
+6. `agent-browser open <url-from-.preview-url.md>` — **use this URL, not localhost**
+7. `agent-browser screenshot --full screenshots/YYYYMMDDHHMMSS-<short-title>.png`
+8. Confirm the screenshot URL/title bar reflects the Cloudflare domain, not localhost
+9. Include screenshot path, description, and confidence score in your result comment
+
+> ❌ **A screenshot taken from `localhost` or `127.0.0.1` does not count as verification.**
+> The task is not complete until a screenshot from the `.preview-url.md` URL is saved.
