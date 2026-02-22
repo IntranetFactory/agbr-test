@@ -2,6 +2,7 @@
 set -e
 
 # 1. Configuration & Slugs
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_NAME=$(basename -s .git $(git config --get remote.origin.url) | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
 RAW_BRANCH=$(git rev-parse --abbrev-ref HEAD | tr '[:upper:]' '[:lower:]')
 BRANCH_TAG=$(echo "$RAW_BRANCH" | sed 's/copilot//g; s/claude//g' | sed 's/[^a-z]//g' | cut -c1-10)-$(date '+%Y%m%d%H%M%S')
@@ -55,7 +56,6 @@ fi
 
 echo ""
 echo "Deploy URL: $DEPLOY_URL"
-printf "# Deploy URL\n\n%s\n" "$DEPLOY_URL" > ../.preview-url.md
+printf "# Deploy URL\n\n%s\n" "$DEPLOY_URL" > "$SCRIPT_DIR/../.preview-url.md"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 "$SCRIPT_DIR/message.sh" "Preview published $DEPLOY_URL"

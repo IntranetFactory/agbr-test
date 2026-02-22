@@ -44,10 +44,13 @@ Never expose or log secret values.
 
 Branch previews deploy to Cloudflare Workers. After deployment, the preview URL is written to `.preview-url.md` at the repo root.
 ```bash
-pnpm --filter web preview:wrangler   # deploy preview, writes URL to .preview-url.md
+dotenvx run -- pnpm --filter web preview:wrangler   # deploy preview (includes proxy fix for Copilot sandbox)
 ```
 
 Read `.preview-url.md` to get the URL — do not guess or construct it manually.
+If `.preview-url.md` does not exist (e.g. fresh session), run the deploy command first, then read the file. As a fallback, use the "Deploy URL:" line printed to the console by the deploy script.
+
+> ⚠️ Do **not** use the root-level `pnpm preview:wrangler` — it runs through turbo and bypasses the proxy compatibility fix required in this sandbox.
 
 Production deploy:
 ```bash
@@ -64,6 +67,12 @@ agent-browser click @ref
 agent-browser fill @ref "value"
 agent-browser screenshot --full <path>
 ```
+
+> ⚠️ **Cloudflare preview URLs require `--ignore-https-errors`** because Playwright's bundled certificate store does not trust the intermediate CA Cloudflare uses for `*.workers.dev` subdomains in this sandbox. Always restart the browser with this flag before opening a Cloudflare preview URL:
+> ```bash
+> agent-browser close   # close any existing session first
+> agent-browser --ignore-https-errors open <url>
+> ```
 
 Full skill documentation: `.agents/skills/agent-browser/SKILL.md`
 
@@ -98,12 +107,12 @@ When asked to implement and verify a change:
 1. Make the change
 2. Use `pnpm dev` during development for fast Vite feedback (localhost is for iteration only)
 3. `pnpm build` — confirm no build errors
-4. `pnpm preview:wrangler` — deploy to Cloudflare via turbo (**run from repo root**)
+4. `dotenvx run -- pnpm --filter web preview:wrangler` — deploy to Cloudflare (use this exact command, not root-level `pnpm preview:wrangler`)
 5. Read `.preview-url.md` — this is the only valid URL for verification screenshots
 ```bash
    cat .preview-url.md   # e.g. https://abc123.your-project.workers.dev
 ```
-6. `agent-browser open <url-from-.preview-url.md>` — **use this URL, not localhost**
+6. `agent-browser close && agent-browser --ignore-https-errors open <url-from-.preview-url.md>` — **use `--ignore-https-errors`** (required for Cloudflare preview URLs); use this URL, not localhost
 7. `agent-browser screenshot --full screenshots/YYYYMMDDHHMMSS-<short-title>.png`
 8. Confirm the screenshot URL/title bar reflects the Cloudflare domain, not localhost
 9. Include screenshot path, description, and confidence score in your result comment
