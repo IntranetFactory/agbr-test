@@ -41,7 +41,7 @@ function Welcome() {
           <p className="text-xl text-slate-600 dark:text-slate-400">
             Built with React, Vite, and shadcn/ui
           </p>
-          <div className="text-3xl font-semibold text-red-600 mt-4">
+          <div className="text-3xl font-semibold text-blue-900 mt-4">
             {formatTime(currentTime)}
           </div>
         </div>
