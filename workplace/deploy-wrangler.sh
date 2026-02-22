@@ -55,4 +55,7 @@ fi
 
 echo ""
 echo "Deploy URL: $DEPLOY_URL"
-printf "# Deploy URL\n\n%s\n" "$DEPLOY_URL" > ../../.preview-url.md
+printf "# Deploy URL\n\n%s\n" "$DEPLOY_URL" > ../.preview-url.md
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+"$SCRIPT_DIR/message.sh" "Preview published $DEPLOY_URL"

@@ -61,6 +61,7 @@ When creating a new project from this template, the encrypted `.env` in the temp
    ```bash
    dotenvx set CLOUDFLARE_API_TOKEN <your-token>
    dotenvx set CLOUDFLARE_ACCOUNT_ID <your-account-id>
+   dotenvx set NOTIFY_WEBHOOK_URL <your-slack-or-compatible-webhook-url>   # optional
    ```
 
    Each value is encrypted into `.env` using the public key.
@@ -120,6 +121,12 @@ App available at `http://localhost:5173`.
 
 Secrets are managed with [dotenvx](https://dotenvx.com/). Unlike a typical `.env` workflow, the encrypted `.env` file is committed to the repo — values are encrypted with a public key so the file is safe in version control. The private decryption key lives in `.env.keys`, which is gitignored and must never be committed.
 
+| Variable | Required | Description |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | Yes | Cloudflare API token for Wrangler deployments |
+| `CLOUDFLARE_ACCOUNT_ID` | Yes | Cloudflare account ID |
+| `NOTIFY_WEBHOOK_URL` | No | Slack or Slack-compatible webhook URL (e.g. Discord) — when set, a notification with the preview URL is sent after each deploy via `workplace/message.sh` |
+
 **First-time setup:** `.env.local` lists the required variables with empty values. Copy it, fill in your secrets, then encrypt:
 
 ```bash
@@ -144,7 +151,7 @@ dotenvx run -- pnpm dev
 
 ## Deployment
 
-The web app deploys to **Cloudflare Workers** via Wrangler. Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set in `.env`.
+The web app deploys to **Cloudflare Workers** via Wrangler. Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set in `.env`. After a successful deploy, `workplace/message.sh` sends a notification with the preview URL — set `NOTIFY_WEBHOOK_URL` to a Slack or Slack-compatible webhook (e.g. Discord) to enable this.
 
 **Branch preview** (default — always generates a preview URL):
 ```bash

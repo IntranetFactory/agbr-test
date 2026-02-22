@@ -35,9 +35,6 @@ VERSION_FILE=".workplace-version"
 
 # Send start message with environment variables
 echo "Starting workplace setup..."
-echo "SECRET: ${SECRET:+[set]}"
-echo "VARIABLE: ${VARIABLE:-not set}"
-send_message "workplace setup started - SECRET: ${SECRET:+[set]}, VARIABLE: ${VARIABLE:-not set}"
 
 # Read current workplace version, default to 000 if not exists
 if [ -f "$VERSION_FILE" ]; then
