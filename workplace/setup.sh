@@ -71,14 +71,14 @@ npx --yes playwright install --with-deps chromium
 # Fix: agent-browser bundles its own playwright-core which may expect a different
 # chromium-headless-shell revision than the one installed by the global playwright.
 #
-# In Claude's remote cloud sandbox (CLAUDECODE=1 + CLAUDE_CODE_REMOTE=true), outbound
-# downloads are restricted, so playwright cannot auto-fetch the missing revision at
-# runtime. We detect this environment and create symlinks from the installed revision
-# to the path agent-browser's playwright-core expects.
+# Only applied in Claude's remote cloud sandbox (CLAUDECODE=1 + CLAUDE_CODE_REMOTE=true)
+# where outbound downloads are restricted, so playwright cannot auto-fetch the missing
+# revision at runtime. We create symlinks from the installed revision to the path
+# agent-browser's playwright-core expects.
 #
 # In devcontainer / GitHub Copilot sandboxes the download succeeds at runtime, so
-# this fix is a no-op there (the binary already exists by the time we check).
-fix_agent_browser_chromium() {
+# this function is never called there.
+fix_agent_browser_claude_sandbox() {
     local AGBR_PW_DIR
     AGBR_PW_DIR="$(npm root -g)/agent-browser/node_modules/playwright-core"
 
@@ -103,13 +103,6 @@ fix_agent_browser_chromium() {
     fi
 
     local PW_CACHE="/root/.cache/ms-playwright"
-    # On linux-x64 playwright-core 1.58+ uses chrome-headless-shell-linux64/chrome-headless-shell
-    local EXPECTED_BIN="$PW_CACHE/chromium_headless_shell-${REQUIRED_REV}/chrome-headless-shell-linux64/chrome-headless-shell"
-
-    if [ -f "$EXPECTED_BIN" ] || [ -L "$EXPECTED_BIN" ]; then
-        echo "  agent-browser chromium-headless-shell rev $REQUIRED_REV already available."
-        return 0
-    fi
 
     echo "  agent-browser needs chromium-headless-shell rev $REQUIRED_REV, not found."
 
@@ -163,16 +156,28 @@ fix_agent_browser_chromium() {
     echo "  Compatibility symlinks created (rev $INSTALLED_REV -> rev $REQUIRED_REV)."
 }
 
-# Always check and fix: the function is a no-op if the binary already exists.
-# In Claude's remote sandbox (CLAUDECODE=1 + CLAUDE_CODE_REMOTE=true) the fix is
-# required because outbound downloads are restricted and playwright cannot fetch the
-# missing revision at runtime. In other environments (devcontainer, Copilot) the
-# binary will already be present or the download will have succeeded, so the check
-# exits early with no changes.
+# Only apply the fix when running in Claude's remote sandbox AND the agent-browser
+# setup (playwright install above) did not install the revision that agent-browser
+# expects. Outside the Claude sandbox, playwright can download the missing revision
+# at runtime, so no fix is needed.
 if [ "${CLAUDECODE:-}" = "1" ] && [ "${CLAUDE_CODE_REMOTE:-}" = "true" ]; then
-    echo "Detected Claude remote sandbox — applying agent-browser chromium compatibility fix..."
+    _AGBR_PW_DIR="$(npm root -g)/agent-browser/node_modules/playwright-core"
+    _REQUIRED_REV=""
+    if [ -d "$_AGBR_PW_DIR" ]; then
+        _REQUIRED_REV=$(node -e "
+            try {
+                const b = require('$_AGBR_PW_DIR/browsers.json');
+                const c = b.browsers.find(x => x.name === 'chromium-headless-shell');
+                console.log(c ? c.revision : '');
+            } catch(e) { console.log(''); }
+        " 2>/dev/null)
+    fi
+    _EXPECTED_BIN="/root/.cache/ms-playwright/chromium_headless_shell-${_REQUIRED_REV}/chrome-headless-shell-linux64/chrome-headless-shell"
+    if [ -n "$_REQUIRED_REV" ] && [ ! -f "$_EXPECTED_BIN" ] && [ ! -L "$_EXPECTED_BIN" ]; then
+        echo "Detected Claude remote sandbox and agent-browser chromium fix is needed — applying compatibility fix..."
+        fix_agent_browser_claude_sandbox
+    fi
 fi
-fix_agent_browser_chromium
 
 echo "Installing project dependencies with pnpm..."
 pnpm install --frozen-lockfile
