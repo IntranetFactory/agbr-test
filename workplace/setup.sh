@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Current script version
-VERSION="002"
+VERSION="003"
 
 # Setup workplace script
 # This script configures the environment and dependencies after checkout
@@ -67,6 +67,112 @@ npm install -g wrangler
 
 echo "Installing Playwright browsers..."
 npx --yes playwright install --with-deps chromium
+
+# Fix: agent-browser bundles its own playwright-core which may expect a different
+# chromium-headless-shell revision than the one installed by the global playwright.
+#
+# In Claude's remote cloud sandbox (CLAUDECODE=1 + CLAUDE_CODE_REMOTE=true), outbound
+# downloads are restricted, so playwright cannot auto-fetch the missing revision at
+# runtime. We detect this environment and create symlinks from the installed revision
+# to the path agent-browser's playwright-core expects.
+#
+# In devcontainer / GitHub Copilot sandboxes the download succeeds at runtime, so
+# this fix is a no-op there (the binary already exists by the time we check).
+fix_agent_browser_chromium() {
+    local AGBR_PW_DIR
+    AGBR_PW_DIR="$(npm root -g)/agent-browser/node_modules/playwright-core"
+
+    if [ ! -d "$AGBR_PW_DIR" ]; then
+        echo "  agent-browser playwright-core not found, skipping chromium fix."
+        return 0
+    fi
+
+    # Read the chromium-headless-shell revision required by agent-browser's playwright-core
+    local REQUIRED_REV
+    REQUIRED_REV=$(node -e "
+        try {
+            const b = require('$AGBR_PW_DIR/browsers.json');
+            const c = b.browsers.find(x => x.name === 'chromium-headless-shell');
+            console.log(c ? c.revision : '');
+        } catch(e) { console.log(''); }
+    " 2>/dev/null)
+
+    if [ -z "$REQUIRED_REV" ]; then
+        echo "  Could not determine required chromium-headless-shell revision, skipping fix."
+        return 0
+    fi
+
+    local PW_CACHE="/root/.cache/ms-playwright"
+    # On linux-x64 playwright-core 1.58+ uses chrome-headless-shell-linux64/chrome-headless-shell
+    local EXPECTED_BIN="$PW_CACHE/chromium_headless_shell-${REQUIRED_REV}/chrome-headless-shell-linux64/chrome-headless-shell"
+
+    if [ -f "$EXPECTED_BIN" ] || [ -L "$EXPECTED_BIN" ]; then
+        echo "  agent-browser chromium-headless-shell rev $REQUIRED_REV already available."
+        return 0
+    fi
+
+    echo "  agent-browser needs chromium-headless-shell rev $REQUIRED_REV, not found."
+
+    # Find the highest installed headless-shell revision (installed by the global playwright)
+    local INSTALLED_DIR
+    INSTALLED_DIR=$(find "$PW_CACHE" -maxdepth 1 -name "chromium_headless_shell-*" -type d 2>/dev/null \
+        | sort -V | tail -1)
+
+    if [ -z "$INSTALLED_DIR" ]; then
+        echo "  No installed chromium_headless_shell found, cannot create compatibility symlinks."
+        return 1
+    fi
+
+    # Older playwright stored the binary in chrome-linux/headless_shell;
+    # newer stores it in chrome-headless-shell-linux64/chrome-headless-shell.
+    # Try both locations.
+    local SRC_DIR SRC_BIN
+    if [ -f "$INSTALLED_DIR/chrome-linux/headless_shell" ]; then
+        SRC_DIR="$INSTALLED_DIR/chrome-linux"
+        SRC_BIN="headless_shell"
+    elif [ -f "$INSTALLED_DIR/chrome-headless-shell-linux64/chrome-headless-shell" ]; then
+        SRC_DIR="$INSTALLED_DIR/chrome-headless-shell-linux64"
+        SRC_BIN="chrome-headless-shell"
+    else
+        echo "  Could not locate headless shell binary in $INSTALLED_DIR, skipping fix."
+        return 1
+    fi
+
+    local INSTALLED_REV
+    INSTALLED_REV=$(basename "$INSTALLED_DIR" | sed 's/chromium_headless_shell-//')
+    echo "  Creating compatibility symlinks: rev $INSTALLED_REV -> rev $REQUIRED_REV"
+
+    local DEST_DIR="$PW_CACHE/chromium_headless_shell-${REQUIRED_REV}/chrome-headless-shell-linux64"
+    mkdir -p "$DEST_DIR"
+
+    # Symlink every file; rename the binary to the name playwright-core expects
+    for f in "$SRC_DIR"/*; do
+        local fname
+        fname=$(basename "$f")
+        if [ "$fname" = "$SRC_BIN" ]; then
+            ln -sf "$f" "$DEST_DIR/chrome-headless-shell"
+        else
+            ln -sf "$f" "$DEST_DIR/$fname"
+        fi
+    done
+
+    # Create the INSTALLATION_COMPLETE marker so playwright treats this as a
+    # valid installation and does not attempt to delete or re-download it.
+    touch "$PW_CACHE/chromium_headless_shell-${REQUIRED_REV}/INSTALLATION_COMPLETE"
+
+    echo "  Compatibility symlinks created (rev $INSTALLED_REV -> rev $REQUIRED_REV)."
+}
+
+# Always check and fix: the function is a no-op if the binary already exists.
+# In Claude's remote sandbox (CLAUDECODE=1 + CLAUDE_CODE_REMOTE=true) the fix is
+# required because outbound downloads are restricted and playwright cannot fetch the
+# missing revision at runtime. In other environments (devcontainer, Copilot) the
+# binary will already be present or the download will have succeeded, so the check
+# exits early with no changes.
+if [ "${CLAUDECODE:-}" = "1" ] && [ "${CLAUDE_CODE_REMOTE:-}" = "true" ]; then
+    echo "Detected Claude remote sandbox — applying agent-browser chromium compatibility fix..."
+fi
+fix_agent_browser_chromium
 
 echo "Installing project dependencies with pnpm..."
 pnpm install --frozen-lockfile
