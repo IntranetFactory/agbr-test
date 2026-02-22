@@ -1,7 +1,5 @@
 # agbr-test
 
-Lovable lets you prompt an app into existence in 30 minutes. This is what you reach for when that stops being enough.
-
 A template for a **Level 3 front-end coding agent workplace** — a production-grade React monorepo that provisions itself automatically for AI coding agents (Claude Code, GitHub Copilot) and human developers alike. The agent gets a real environment: encrypted secrets, browser automation, a build pipeline, and Cloudflare deployment — not a managed sandbox with guardrails.
 
 Tools like Lovable win on time-to-first-app — but they run the agent in a managed sandbox, store your secrets on their platform, and stop at the edge of their UI. This template is for when you need the agent working in a real pipeline: encrypted secrets committed to the repo, browser automation the agent drives itself, and deployment you control. You own the stack; you pay your own API costs; nothing locks you in.
@@ -37,8 +35,7 @@ The workplace provisions itself via `workplace/setup.sh` (installs global deps, 
 ├── .devcontainer/                  # DevContainer configuration
 ├── .github/workflows/              # copilot-setup-steps.yml
 ├── apps/web/                       # Main React application
-│   ├── src/
-│   ├── screenshots/
+│   ├── src/│   
 │   ├── wrangler.jsonc              # Cloudflare deployment config
 │   └── deploy-wrangler.sh
 ├── workplace/
@@ -46,6 +43,41 @@ The workplace provisions itself via `workplace/setup.sh` (installs global deps, 
 ├── turbo.json
 └── pnpm-workspace.yaml
 ```
+
+## Using as a Template
+
+When creating a new project from this template, the encrypted `.env` in the template repo was generated with a key you do not have. You need to generate your own key pair and re-encrypt your own secrets before the Copilot agent (or any other environment) can decrypt them.
+
+1. **Generate a new key:**
+
+   ```bash
+   dotenvx genkey
+   ```
+
+   This creates `.env.keys` containing your `DOTENV_PRIVATE_KEY` and writes the corresponding public key into `.env`.
+
+2. **Set your secrets:**
+
+   ```bash
+   dotenvx set CLOUDFLARE_API_TOKEN <your-token>
+   dotenvx set CLOUDFLARE_ACCOUNT_ID <your-account-id>
+   ```
+
+   Each value is encrypted into `.env` using the public key.
+
+3. **Commit the updated `.env`:**
+
+   ```bash
+   git add .env
+   git commit -m "chore: initialize encrypted secrets"
+   ```
+
+4. **Store the private key securely:**
+
+   Copy `DOTENV_PRIVATE_KEY` from `.env.keys` and add it to:
+   - **Actions secret** (Settings → Secrets and variables → Actions → `DOTENV_PRIVATE_KEY`) — required for CI.
+   - **Copilot environment secret** (Settings → Environments → copilot → `DOTENV_PRIVATE_KEY`) — required for the Copilot coding agent.
+   - A secure store (1Password, etc.) as a backup.
 
 ## Getting Started
 
@@ -63,7 +95,16 @@ Open in VS Code and choose **Reopen in Container**. Setup runs automatically.
 
 ### GitHub Copilot coding agent
 
-The `copilot-setup-steps.yml` workflow runs setup before each agent session. No manual steps required.
+The `copilot-setup-steps.yml` workflow runs setup before each agent session. The following one-time configuration is required in your GitHub repository settings:
+
+**Repository secrets** — `DOTENV_PRIVATE_KEY` must be added in two places:
+- **Actions** (Settings → Secrets and variables → Actions) — used by CI.
+- **Copilot environment** (Settings → Environments → copilot) — used by the Copilot coding agent.
+
+**Allowed domains** (Settings → Copilot → Policies, or your organisation's Copilot network policy):
+- `cloudflare.com`
+- `workers.dev`
+- If you use an external notifications webhook, add that domain as well.
 
 ## Development
 
