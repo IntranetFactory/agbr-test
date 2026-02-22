@@ -49,10 +49,6 @@ pnpm --filter web preview:wrangler   # deploy preview, writes URL to .preview-ur
 
 Read `.preview-url.md` to get the URL — do not guess or construct it manually.
 
-Production deploy:
-```bash
-cd apps/web && bash deploy-wrangler.sh --prod
-```
 
 ## Browser Automation
 

@@ -53,9 +53,36 @@ else
   DEPLOY_URL="https://$BRANCH_TAG-$REPO_NAME.$CF_SUBDOMAIN.workers.dev"
 fi
 
+CURL_OK=false
+for attempt in 1 2 3; do
+  SLEEP_SECS=$(( attempt * 3 - 1 ))  # 2, 5, 8 → sleep before retry (skip on first attempt)
+  if [[ $attempt -gt 1 ]]; then
+    echo "⏳ Waiting ${SLEEP_SECS}s before retry $attempt/3..."
+    sleep "$SLEEP_SECS"
+  fi
+  HTTP_CODE=$(curl -sSL --max-time 15 -o /tmp/deploy_check_body -w "%{http_code}" \
+    --stderr /tmp/deploy_check_err "$DEPLOY_URL") && RC=$? || RC=$?
+  if [[ $RC -ne 0 ]]; then
+    echo "⚠️  curl failed (exit $RC) on attempt $attempt/3:"
+    cat /tmp/deploy_check_err >&2
+    continue
+  fi
+  if [[ "$HTTP_CODE" =~ ^[23] ]]; then
+    CURL_OK=true
+    break
+  else
+    echo "⚠️  HTTP $HTTP_CODE on attempt $attempt/3"
+    cat /tmp/deploy_check_body >&2
+  fi
+done
+
+if [[ "$CURL_OK" != true ]]; then
+  echo "❌ Deploy URL did not become healthy after 3 attempts: $DEPLOY_URL" >&2
+fi
+
 echo ""
 echo "Deploy URL: $DEPLOY_URL"
-printf "# Deploy URL\n\n%s\n" "$DEPLOY_URL" > ../.preview-url.md
+printf "# Deploy URL\n\n%s\n" "$DEPLOY_URL" > ../../.preview-url.md
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 "$SCRIPT_DIR/message.sh" "Preview published $DEPLOY_URL"
