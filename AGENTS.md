@@ -4,9 +4,9 @@
 
 ## Project Context
 
-Read `CONTEXT-MEMORY.md` for project-specific architecture, tech stack, and prior discoveries.
+**Before starting any task**, read `CONTEXT-MEMORY.md`. It contains architecture decisions, lessons learned, and project state that you MUST incorporate into your work.
 
-You are responsible for maintaining a log of project-specific discoveries and progress in `CONTEXT-MEMORY.md`. Update this file after every major task — record new architectural insights, resolved gotchas, and any decisions that future sessions should know about.
+You are responsible for maintaining `CONTEXT-MEMORY.md`. Update it after every major task — record new architectural insights, resolved gotchas, and any decisions that future sessions should know about.
 
 If you make a mistake, encounter a bug that takes more than one attempt to fix, or if I give you a direct preference (e.g., "always run tests"), you MUST:
 
