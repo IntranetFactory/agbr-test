@@ -8,6 +8,13 @@ Read `CONTEXT.md` for project-specific architecture, tech stack, and prior disco
 
 Maintain a log of project-specific discoveries and progress in `CONTEXT.md`. Update this file after every major task — record new architectural insights, resolved gotchas, and any decisions that future sessions should know about.
 
+## Workspace
+
+This is a **pnpm workspace monorepo** orchestrated by **Turborepo** (`turbo.json`). All packages live under the `apps/` and `packages/` directories.
+
+- `pnpm` — package manager & workspace orchestration
+- `turbo` — task runner (build, dev, lint pipelines defined in `turbo.json`)
+
 ## Environment
 
 The workspace is provisioned automatically via `workplace/setup.sh` on session start. The following are installed globally and available on PATH:
@@ -150,6 +157,22 @@ https://raw.githubusercontent.com/IntranetFactory/agbr-test/<branch-name>/screen
 
 > ⚠️ Screenshots mentioned only in comments do NOT satisfy this requirement. They must be **visible inline** in the PR description itself so reviewers can see them without clicking.
 
+### 3. CONTEXT.md update status
+
+Every PR description **must** state whether `CONTEXT.md` was updated and why (or why not). This ensures reviewers know if new architectural insights, tech-stack changes, or discovery-log entries were captured.
+
+```markdown
+## CONTEXT.md
+Updated — added discovery log entry for new auth flow.
+```
+
+or
+
+```markdown
+## CONTEXT.md
+No update needed — change was a cosmetic CSS fix with no architectural impact.
+```
+
 ### Example `prDescription` for report_progress
 
 ```markdown
@@ -160,4 +183,7 @@ https://copilot-my-branch-agbr-test.ma532.workers.dev
 
 ## Screenshots
 ![Home page heading showing window.location.href](https://raw.githubusercontent.com/IntranetFactory/agbr-test/copilot/my-branch/screenshots/20240315143022-checkout-flow.png)
+
+## CONTEXT.md
+No update needed — cosmetic heading change only.
 ```
