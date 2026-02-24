@@ -39,13 +39,14 @@ fi
 if [[ "$*" == *"--prod"* ]] || [[ "$*" == *"--production"* ]]; then
   echo "🚀 [PRODUCTION] Deploying live: $REPO_NAME"
 
-  pnpm wrangler deploy --name "$REPO_NAME" || { echo "❌ Deployment failed" >&2; exit 1; }
+  pnpm wrangler deploy --config "$SCRIPT_DIR/wrangler.jsonc" --name "$REPO_NAME" || { echo "❌ Deployment failed" >&2; exit 1; }
 
   DEPLOY_URL="https://$REPO_NAME.$CF_SUBDOMAIN.workers.dev"
 else
   echo "🔗 [PREVIEW] Deploying preview: $BRANCH_TAG.$REPO_NAME"
 
   pnpm wrangler versions upload \
+    --config "$SCRIPT_DIR/wrangler.jsonc" \
     --name "$REPO_NAME" \
     --preview-alias "$BRANCH_TAG" \
     --tag "$BRANCH_TAG" \
