@@ -39,13 +39,27 @@ fi
 if [[ "$*" == *"--prod"* ]] || [[ "$*" == *"--production"* ]]; then
   echo "🚀 [PRODUCTION] Deploying live: $REPO_NAME"
 
-  pnpm wrangler deploy --name "$REPO_NAME" || { echo "❌ Deployment failed" >&2; exit 1; }
+  pnpm wrangler deploy --config "$SCRIPT_DIR/wrangler.jsonc" --name "$REPO_NAME" || { echo "❌ Deployment failed" >&2; exit 1; }
 
   DEPLOY_URL="https://$REPO_NAME.$CF_SUBDOMAIN.workers.dev"
 else
   echo "🔗 [PREVIEW] Deploying preview: $BRANCH_TAG.$REPO_NAME"
 
+  # If the worker does not exist yet, bootstrap it with an initial production deploy
+  # (wrangler versions upload fails when no base worker exists)
+  WORKER_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+    "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/workers/scripts/$REPO_NAME" \
+    -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" 2>/dev/null || echo "000")
+  if [[ "$WORKER_STATUS" == "404" ]]; then
+    echo "🆕 Worker '$REPO_NAME' not found. Running initial production deploy first..."
+    pnpm wrangler deploy --config "$SCRIPT_DIR/wrangler.jsonc" --name "$REPO_NAME" || { echo "❌ Initial production deployment failed" >&2; exit 1; }
+  elif [[ "$WORKER_STATUS" != "200" ]]; then
+    echo "❌ Unexpected response checking worker existence (HTTP $WORKER_STATUS). Check CLOUDFLARE_API_TOKEN and ACCOUNT_ID." >&2
+    exit 1
+  fi
+
   pnpm wrangler versions upload \
+    --config "$SCRIPT_DIR/wrangler.jsonc" \
     --name "$REPO_NAME" \
     --preview-alias "$BRANCH_TAG" \
     --tag "$BRANCH_TAG" \
