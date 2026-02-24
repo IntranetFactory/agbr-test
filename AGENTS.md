@@ -11,9 +11,13 @@ You are responsible for maintaining `CONTEXT-MEMORY.md`. Update it after every m
 If you make a mistake, encounter a bug that takes more than one attempt to fix, or if I give you a direct preference (e.g., "always run tests"), you MUST:
 
 1.  **Analyze:** Identify the root cause of the error or the core requirement.
-2.  **Record:** Immediately update `CONTEXT-MEMORY.md` with a "Lesson Learned" or "Requirement."
-3.  **Prevent:** Formulate a rule for yourself to prevent this specific issue in the future.
-4.  **Format:** Use a simple list: "- [NEW] Always run `npm test` before committing."
+2.  **Route:** Decide where the knowledge belongs before recording it:
+    - **Specific file** → add a comment in that file explaining the _why_. Do NOT duplicate it in `CONTEXT-MEMORY.md`. If the fix is already self-evident from well-commented code, no further recording is needed.
+    - **Cross-cutting / architectural / no single file home** → record in `CONTEXT-MEMORY.md`.
+    - **Rule of thumb:** if the knowledge would go stale or become wrong when the relevant code is refactored, it belongs in the code — not in a memory file.
+3.  **Record:** If `CONTEXT-MEMORY.md` is the right place (step 2), update it with a "Lesson Learned" or "Requirement."
+4.  **Prevent:** Formulate a rule for yourself to prevent this specific issue in the future.
+5.  **Format:** Use a simple list: "- [NEW] Always run `npm test` before committing."
 
 ## Workspace
 
