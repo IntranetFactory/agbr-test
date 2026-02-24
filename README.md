@@ -1,8 +1,8 @@
-# agbr-test
+# level3-workplace
 
 A template for a **Level 3 front-end coding agent workplace** — a production-grade React monorepo that provisions itself automatically for AI coding agents (Claude Code, GitHub Copilot) and human developers alike. The agent gets a real environment: encrypted secrets, browser automation, a build pipeline, and Cloudflare deployment — not a managed sandbox with guardrails.
 
-Tools like Lovable win on time-to-first-app — but they run the agent in a managed sandbox, store your secrets on their platform, and stop at the edge of their UI. This template is for when you need the agent working in a real pipeline: encrypted secrets committed to the repo, browser automation the agent drives itself, and deployment you control. You own the stack; you pay your own API costs; nothing locks you in.
+While tools like Lovable excel at rapid prototyping, they confine the agent to a managed sandbox and an opinionated stack. This workplace transitions you from "Vibe Coding" to "Agentic Engineering." It provides the agent with a raw, unconstrained environment where it can autonomously manage encrypted secrets, drive Playwright-powered browser automation, and orchestrate its own branch-based Preview Workers via the Cloudflare Wrangler CLI. Instead of a static preview, the agent creates a live, isolated testing ground for every task it tackles. You aren't just giving the agent a chat window; you're giving it a seat at the terminal with the full power of a production-grade CI/CD pipeline—where you own the stack and the agent owns the delivery.
 
 ## Stack
 
@@ -84,9 +84,9 @@ When creating a new project from this template, the encrypted `.env` in the temp
 
 ### Human / local clone
 
+Clone the repo and then execute
+
 ```bash
-git clone https://github.com/IntranetFactory/agbr-test.git
-cd agbr-test
 bash workplace/setup.sh
 ```
 
@@ -110,9 +110,10 @@ The `copilot-setup-steps.yml` workflow runs setup before each agent session. The
 ## Development
 
 ```bash
-pnpm dev          # start all apps
-pnpm build        # build all apps
-pnpm lint         # lint all apps
+pnpm dev                # start all apps
+pnpm build              # build all apps
+pnpm lint               # lint all apps
+pnpm preview:cloudflare # build & deploy to cloudflare
 ```
 
 App available at `http://localhost:5173`.
@@ -158,10 +159,6 @@ The web app deploys to **Cloudflare Workers** via Wrangler. Requires `CLOUDFLARE
 pnpm --filter web preview:wrangler
 ```
 
-**Production:**
-```bash
-cd apps/web && bash deploy-wrangler.sh --prod
-```
 
 Each branch gets its own preview URL on Cloudflare Workers. The URL is written to `.preview-url.md` at the repo root after deployment, so a human reviewer or `agent-browser` can pick it up without manual copy-paste — the agent can deploy, read the URL, open it in the browser, and verify the result autonomously.
 
@@ -178,8 +175,6 @@ agent-browser fill @ref "text"
 ```
 
 Skill documentation: `.agents/skills/agent-browser/SKILL.md`
-
-> **Note:** `agent-browser` requires Playwright (installed by `setup.sh`). It does not work in the Claude Code web sandbox.
 
 ## License
 
