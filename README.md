@@ -168,7 +168,7 @@ Each branch gets its own preview URL on Cloudflare Workers. The URL is written t
 
 ```bash
 agent-browser open http://localhost:5173
-agent-browser screenshot --full apps/web/screenshots/welcome.png
+agent-browser screenshot --full screenshots/welcome.png
 agent-browser snapshot
 agent-browser click @ref
 agent-browser fill @ref "text"
