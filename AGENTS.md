@@ -1,5 +1,20 @@
 # Agent Instructions
 
+> **🔒 CRITICAL: Do not modify this file. It is a shared SOP. Only the human user can update these rules.**
+
+## Project Context
+
+Read `CONTEXT.md` for project-specific architecture, tech stack, and prior discoveries.
+
+Maintain a log of project-specific discoveries and progress in `CONTEXT.md`. Update this file after every major task — record new architectural insights, resolved gotchas, and any decisions that future sessions should know about.
+
+## Workspace
+
+This is a **pnpm workspace monorepo** orchestrated by **Turborepo** (`turbo.json`). All packages live under the `apps/` and `packages/` directories.
+
+- `pnpm` — package manager & workspace orchestration
+- `turbo` — task runner (build, dev, lint pipelines defined in `turbo.json`)
+
 ## Environment
 
 The workspace is provisioned automatically via `workplace/setup.sh` on session start. The following are installed globally and available on PATH:
@@ -13,7 +28,7 @@ Do not re-run `setup.sh` manually unless the environment appears broken.
 
 ## Commands
 ```bash
-pnpm dev              # start all apps in dev mode (Vite HMR at http://localhost:5173)
+pnpm dev              # start all apps in dev mode
 pnpm build            # build all apps
 pnpm lint             # lint all apps
 ```
@@ -21,7 +36,7 @@ pnpm lint             # lint all apps
 ## Development vs. Completion
 
 ### During development — fast iteration
-Use `pnpm dev` (or `pnpm --filter web dev`) for instant Vite HMR feedback while writing code. Use this freely during a task for rapid iteration. Localhost is a development tool only — **it is not a completion gate**.
+Use `pnpm dev` for fast HMR feedback while writing code. Use this freely during a task for rapid iteration. Localhost is a development tool only — **it is not a completion gate**.
 
 ### Task completion — mandatory
 A task is **not complete** until it has been deployed to a Cloudflare branch preview and verified there. Do not mark a task done based on localhost behaviour alone.
@@ -92,7 +107,7 @@ Confidence: 92% — all acceptance criteria visible; minor responsive layout not
 When asked to implement and verify a change:
 
 1. Make the change
-2. Use `pnpm dev` during development for fast Vite feedback (localhost is for iteration only)
+2. Use `pnpm dev` during development for fast feedback (localhost is for iteration only)
 3. `pnpm build` — confirm no build errors
 4. `pnpm preview:wrangler` — deploy to Cloudflare via turbo (**run from repo root**)
 5. Read `.preview-url.md` — this is the only valid URL for verification screenshots
@@ -142,6 +157,22 @@ https://raw.githubusercontent.com/IntranetFactory/agbr-test/<branch-name>/screen
 
 > ⚠️ Screenshots mentioned only in comments do NOT satisfy this requirement. They must be **visible inline** in the PR description itself so reviewers can see them without clicking.
 
+### 3. CONTEXT.md update status
+
+Every PR description **must** state whether `CONTEXT.md` was updated and why (or why not). This ensures reviewers know if new architectural insights, tech-stack changes, or discovery-log entries were captured.
+
+```markdown
+## CONTEXT.md
+Updated — added discovery log entry for new auth flow.
+```
+
+or
+
+```markdown
+## CONTEXT.md
+No update needed — change was a cosmetic CSS fix with no architectural impact.
+```
+
 ### Example `prDescription` for report_progress
 
 ```markdown
@@ -152,4 +183,7 @@ https://copilot-my-branch-agbr-test.ma532.workers.dev
 
 ## Screenshots
 ![Home page heading showing window.location.href](https://raw.githubusercontent.com/IntranetFactory/agbr-test/copilot/my-branch/screenshots/20240315143022-checkout-flow.png)
+
+## CONTEXT.md
+No update needed — cosmetic heading change only.
 ```
