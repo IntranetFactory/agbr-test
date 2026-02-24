@@ -53,7 +53,7 @@ else
   if [[ "$WORKER_STATUS" == "404" ]]; then
     echo "🆕 Worker '$REPO_NAME' not found. Running initial production deploy first..."
     pnpm wrangler deploy --config "$SCRIPT_DIR/wrangler.jsonc" --name "$REPO_NAME" || { echo "❌ Initial production deployment failed" >&2; exit 1; }
-  elif [[ "$WORKER_STATUS" != "200" ]]; then
+  elif [[ ! "$WORKER_STATUS" =~ ^2 ]]; then
     echo "❌ Unexpected response checking worker existence (HTTP $WORKER_STATUS). Check CLOUDFLARE_API_TOKEN and ACCOUNT_ID." >&2
     exit 1
   fi
